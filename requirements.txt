@@ -131,7 +131,6 @@ tensorboard-data-server==0.7.2
 tensorflow==2.11.0
 tensorflow-io-gcs-filesystem==0.37.1
 termcolor==2.5.0
-tf_keras==2.11.0
 threadpoolctl==3.5.0
 tinycss2==1.4.0
 tokenizers==0.21.0
