@@ -1,39 +1,33 @@
-from flask import Flask, jsonify, request
-import logging
-from flask_jwt_extended import JWTManager
-from flask_caching import Cache
-from marshmallow import Schema, fields, ValidationError
+from flask import Flask, render_template, request
+from chatbot import load_intents, preprocess_input, match_intent, get_response, breathing_exercise
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['CACHE_TYPE'] = 'simple'
-cache = Cache(app)
-jwt = JWTManager(app)
+# Initialize Flask app
+app = Flask(__name__, template_folder="../templates")
 
-logging.basicConfig(level=logging.INFO)
+# Load intents
+intents = load_intents("/Users/paniztafreshi/PanicAttackBot/data/intents.json")
 
-class PredictionSchema(Schema):
-    text = fields.Str(required=True)
-
-@app.route('/')
+@app.route("/")
 def home():
-    return jsonify({"message": "Welcome to the Chatbot that might help!"})
+    """Render the home page."""
+    return render_template("index.html")
 
-@cache.cached(timeout=60)
-@app.route('/predict', methods=['POST'])
-def predict():
-    try:
-        data = PredictionSchema().load(request.get_json())
-        user_input = data['text']
-        # Dummy prediction logic
-        prediction = "positive" if "happy" in user_input else "negative"
-        return jsonify({"prediction": prediction})
-    except ValidationError as err:
-        return jsonify(err.messages), 400
-    except Exception as e:
-        logging.error(f"Error: {str(e)}")
-        return jsonify({"error": "Internal server error"}), 500
+@app.route("/get", methods=["POST"])
+def chatbot_response():
+    user_input = request.form["message"]
+    print(f"Received input: {user_input}")  # Debug print
+    # Process the input
+    user_input = preprocess_input(user_input)
+    intent = match_intent(user_input, intents)
 
-if __name__ == '__main__':
+    if intent:
+        if intent["tag"] == "breathing_exercise":
+            return "Let's start a breathing exercise together! Inhale for 4 seconds, hold for 7 seconds, and exhale for 8 seconds."
+        else:
+            return get_response(intent)
+    else:
+        return "Sorry, I didn't understand that."
+
+    
+if __name__ == "__main__":
     app.run(debug=True)
-
