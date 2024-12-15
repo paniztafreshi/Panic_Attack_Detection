@@ -1,8 +1,14 @@
+import sys
+import os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+
 from flask import Flask, render_template, request
-from chatbot import load_intents, preprocess_input, match_intent, get_response, breathing_exercise
+from src.chatbot import load_intents, preprocess_input, match_intent, get_response
+from src.exercise import breathing_exercise
 
 # Initialize Flask app
-app = Flask(__name__, template_folder="../templates")
+app = Flask(__name__, template_folder="templates")
 
 # Load intents
 intents = load_intents("/Users/paniztafreshi/PanicAttackBot/data/intents.json")
@@ -27,7 +33,6 @@ def chatbot_response():
             return get_response(intent)
     else:
         return "Sorry, I didn't understand that."
-
     
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
