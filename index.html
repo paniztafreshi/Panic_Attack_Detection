@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Welcome to the Chatbot</h1>
+    <div id="chat-container">
+        <div id="chat-log">
+            <!-- Messages will appear here -->
+        </div>
+        <form id="chat-form">
+            <input type="text" id="user-input" placeholder="Type your message..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#chat-form").submit(function (e) {
+                e.preventDefault(); // Prevent form from refreshing the page
+                
+                // Get the user input
+                var userInput = $("#user-input").val();
+                if (userInput.trim() === "") {
+                    alert("Please enter a message!");
+                    return;
+                }
+
+                // Display the user's message in the chat log
+                $("#chat-log").append("<p><strong>You:</strong> " + userInput + "</p>");
+
+                // Send the message to the server
+                $.post("/get", { message: userInput }, function (response) {
+                    console.log("Response from server:", response); // Debug log for response
+                    // Display the chatbot's response in the chat log
+                    $("#chat-log").append("<p><strong>Chatbot:</strong> " + response + "</p>");
+                    $("#user-input").val(""); // Clear the input field
+                }).fail(function () {
+                    console.error("Error: Could not contact the server.");
+                    alert("Error: Could not contact the server.");
+                });
+            });
+        });
+    </script>
+</body>
+</html>
